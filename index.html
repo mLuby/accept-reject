@@ -56,7 +56,7 @@
   <input ng-model="ar.statusCode" type="number" />
   <button ng-click="ar.setStatusCode(ar.statusCode)">set status code</button>
   <button ng-click="ar.destroyRequests()">delete requests</button>
-  <div ng-repeat="request in ar.requests | orderBy:'-'">
+  <div ng-repeat="request in ar.requests track by request.timeReceived | orderBy:'-'">
     <span ng-click="isHidden = !isHidden">{{ar.humanizeTimestamp(request.timeReceived)}}</span>
     <pre ng-hide="isHidden" pretty-json="request" />
   </div>
