@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html ng-app="acceptreject">
+<head>
+  <title>Accept/Reject</title>
+  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.3/angular.min.js"></script>
+  <script src="https://rawgit.com/darul75/ng-prettyjson/master/dist/ng-prettyjson.min.js"></script>
+  <link rel="stylesheet" type="text/css" href="https://rawgit.com/darul75/ng-prettyjson/master/dist/ng-prettyjson.min.css"><script>
+    var app = angular.module('acceptreject', ['ngPrettyJson']);
+    app.controller('arController', function($scope, $timeout, $http){
+      var self = this;
+      self.requests = [];
+      $http.get('http://localhost:3333/data').then(function(response){
+        self.requests = response.data
+      });
+
+      self.toggle = function(event){
+        event.nextElementSibling
+      }
+    });
+  </script>
+</head>
+<body ng-controller="arController as ar">
+  <div ng-repeat="request in ar.requests | orderBy:'-'" ng-click="isHidden = !isHidden">
+    {{isHidden = !!isHidden; isHidden ? 'Show' : 'Hide'}}
+    <pre ng-hide="isHidden" pretty-json="request" />
+  </div>
+</body>
+</html>
