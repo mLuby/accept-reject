@@ -6,7 +6,7 @@
   <script src="https://rawgit.com/darul75/ng-prettyjson/master/dist/ng-prettyjson.min.js"></script>
   <link rel="stylesheet" type="text/css" href="https://rawgit.com/darul75/ng-prettyjson/master/dist/ng-prettyjson.min.css"><script>
     var app = angular.module('acceptreject', ['ngPrettyJson']);
-    app.controller('arController', function($scope, $timeout, $http){
+    app.controller('arController', function($interval, $http){
       var self = this;
 
       var cookie = {story:document.cookie.split('story=')[1].split(';')[0]};
@@ -15,6 +15,7 @@
 
       getStatusCode();
       getRequests();
+      $interval(getRequests, 1000)
 
       function getStatusCode(){
         $http.get(url+'/status-code').then(function(response){
@@ -53,6 +54,12 @@
   </script>
 </head>
 <body ng-controller="arController as ar">
+  <ol class="instructions">
+    <li>Save this page URL; you'll need it to get back to this persistent page.</li>
+    <li>Direct GET and POST requests to (this url + '/target').</li>
+    <li>Refresh this page to see new requests ordered with most recent on top.</li>
+    <li>You can set the status code for responses to test error handling.</li>
+  </ol>
   <div class="status-code">
     <span>status code: {{ar.statusCode}}</span>
     <button ng-click="ar.setStatusCode(newStatusCode); newStatusCode = ''">set status code to</button>
