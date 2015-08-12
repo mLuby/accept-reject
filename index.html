@@ -53,11 +53,14 @@
   </script>
 </head>
 <body ng-controller="arController as ar">
-  <input ng-model="ar.statusCode" type="number" />
-  <button ng-click="ar.setStatusCode(ar.statusCode)">set status code</button>
+  <div class="status-code">
+    <span>status code: {{ar.statusCode}}</span>
+    <button ng-click="ar.setStatusCode(newStatusCode); newStatusCode = ''">set status code to</button>
+    <input type="number" ng-model="newStatusCode">
+  </div>
   <button ng-click="ar.destroyRequests()">delete requests</button>
   <div ng-repeat="request in ar.requests track by request.timeReceived | orderBy:'-'">
-    <span ng-click="isHidden = !isHidden">{{ar.humanizeTimestamp(request.timeReceived)}}</span>
+    <a href="#" ng-click="isHidden = !isHidden">{{ar.humanizeTimestamp(request.timeReceived)}}</a>
     <pre ng-hide="isHidden" pretty-json="request" />
   </div>
 </body>
