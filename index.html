@@ -9,7 +9,7 @@
     app.controller('arController', function($scope, $timeout, $http){
       var self = this;
       self.requests = [];
-      $http.get('http://localhost:3333/data').then(function(response){
+      $http.get('http://acceptreject.azurewebsites.net/data').then(function(response){
         self.requests = response.data
       });
 
