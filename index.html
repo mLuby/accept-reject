@@ -8,21 +8,28 @@
     var app = angular.module('acceptreject', ['ngPrettyJson']);
     app.controller('arController', function($scope, $timeout, $http){
       var self = this;
-      self.requests = [];
-      var url = 'http://acceptreject.azurewebsites.net'
-      // var url = 'http://localhost:3333'
-      $http.get(url+'/data').then(function(response){
-        self.requests = response.data.length ? response.data : [{no:'data'}]
-      });
 
-      $http.get(url+'/status-code').then(function(response){
-        console.log('received statusCode',response.data)
-        self.statusCode = response.data
-      });
+      var cookie = {story:document.cookie.split('story=')[1].split(';')[0]};
+      var url = 'http://acceptreject.azurewebsites.net/'+cookie.story
+      // var url = 'http://localhost:3333/'+cookie.story
+
+      getStatusCode();
+      getRequests();
+
+      function getStatusCode(){
+        $http.get(url+'/status-code').then(function(response){
+          self.statusCode = response.data
+        });
+      }
+
+      function getRequests(){
+        $http.get(url+'/data').then(function(response){
+          self.requests = response.data.length ? response.data : [{no:'data'}]
+        });
+      }
 
       self.humanizeTimestamp = function(timestamp){
         var date = new Date(timestamp)
-        timezone = date.getTimezoneOffset() / 60.0
         return date.toString()
       }
 
@@ -32,8 +39,8 @@
           console.error('statusCode',statusCode,'not a number')
         } else {
           $http.post(url+'/status-code', {statusCode: cleanStatusCode}).then(function(){
-            self.statusCode = cleanStatusCode
-          });        
+            getStatusCode();
+          });
         }
       }
     });

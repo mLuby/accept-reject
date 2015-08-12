@@ -18,6 +18,7 @@
   "homepage": "https://github.com/mLuby/accept-reject#readme",
   "dependencies": {
     "body-parser": "^1.13.3",
-    "express": "^4.13.3"
+    "express": "^4.13.3",
+    "hat": "0.0.3"
   }
 }

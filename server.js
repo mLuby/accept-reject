@@ -4,6 +4,7 @@ var host; // filled in on first incoming request
 var express = require('express');
 var app = express();
 var bodyParser = require('body-parser');
+var hat = require('hat');
 
 app.use(bodyParser.json()); // for parsing application/json
 app.use(bodyParser.urlencoded({ extended: true })); // for parsing application/x-www-form-urlencoded
@@ -12,35 +13,42 @@ app.use(bodyParser.urlencoded({ extended: true })); // for parsing application/x
 app.use('/', function(req, res, next){
   if(!host){
     host = req.headers.host.split(':')[0];
-    console.log('I am https://'+host+':'+port+' running in '+process.env.environment || 'development'+' mode.');
+    console.log('I am https://'+host+':'+port+' running in '+(process.env.environment || 'development')+' mode.');
   }
   next();
 })
 
-var requests = [];
-var statusCode = 200;
+var stories = {
+  default: {
+    requests: [],
+    statusCode: 200
+  }
+};
 ////////////
 // Routes //
 ////////////
 
-app.get('/status-code', function(req, res){
-  console.log('sending current statusCode', statusCode);
-  res.json(statusCode)
+app.get('/:story/status-code', function(req, res){
+  // get status code for a story
+  res.json(stories[req.params.story].statusCode)
 })
 
-app.post('/status-code', function(req, res){
+app.post('/:story/status-code', function(req, res){
+  // set status code for a story
   cleanStatusCode = Number(req.body.statusCode)
   if(isNaN(cleanStatusCode) && cleanStatusCode !== 0){
     console.error('statusCode',req.body.statusCode,'not a number')
   } else {
-    console.log('setting', statusCode, 'to', cleanStatusCode);
-    statusCode = cleanStatusCode
+    console.log('setting', stories[req.params.story].statusCode, 'to', cleanStatusCode);
+    stories[req.params.story].statusCode = cleanStatusCode
   }
   res.sendStatus(200)
 })
 
-app.get('/target', function(req, res){
-  requests.push({
+app.get('/:story/target', function(req, res){
+  // capture :story GET request
+  var story = stories[req.params.story];
+  story.requests.push({
     'timeReceived': new Date(),
     'query': req.query,
     'params': req.params,
@@ -51,12 +59,15 @@ app.get('/target', function(req, res){
     'trailers': req.trailers,
     'httpVersion': req.httpVersion
   });
-  console.log('Received GET as request #'+requests.length+'.');
-  res.sendStatus(statusCode); // TODO customizable
+  console.log('Received GET as request #'+story.requests.length+'.');
+  res.sendStatus(story.statusCode);
 })
 
 // curl -H "Content-Type: application/json" -X POST -d '{"username":"abc","password":"xyz"}' http://localhost:3333/target?x=y
-app.post('/target', function(req, res){   requests.push({
+app.post('/:story/target', function(req, res){
+  // capture :story POST request
+  var story = stories[req.params.story];
+  story.requests.push({
     'timeReceived': new Date(),
     'body': req.body,
     'query': req.query,
@@ -68,19 +79,27 @@ app.post('/target', function(req, res){   requests.push({
     'trailers': req.trailers,
     'httpVersion': req.httpVersion
   });
-  console.log('Received POST as request #'+requests.length+'.');
-  res.sendStatus(statusCode); // TODO customizable
+  console.log('Received POST as request #'+story.requests.length+'.');
+  res.sendStatus(story.statusCode);
 })
 
-app.get('/data', function (req, res) {
+app.get('/:story/data', function (req, res) {
   // respond with logged requests
-  console.log('Sending',requests.length,'requests.');
-  res.send(requests);
+  var story = stories[req.params.story];
+  res.send(story.requests);
 });
 
-app.get('/', function(req, res){
-  // return index.html
+app.get('/:story', function(req, res){
+  // return index.html with cookie containing story
+  res.cookie('story='+req.params.story+';')
   res.sendFile(path.join(__dirname, 'index.html'));
+  stories[req.params.story] = stories[req.params.story] || {requests:[], statusCode:200};
+})
+
+app.get('/', function(req, res){
+  // redirect to new /:story
+  var story = hat();
+  res.redirect('/'+story);
 })
 
 // Start the server!
