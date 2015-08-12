@@ -9,21 +9,39 @@
     app.controller('arController', function($scope, $timeout, $http){
       var self = this;
       self.requests = [];
-      // var url = 'http://acceptreject.azurewebsites.net'
-      var url = 'http://localhost:3333'
+      var url = 'http://acceptreject.azurewebsites.net'
+      // var url = 'http://localhost:3333'
       $http.get(url+'/data').then(function(response){
         self.requests = response.data.length ? response.data : [{no:'data'}]
       });
 
-      this.humanizeTimestamp = function(timestamp){
+      $http.get(url+'/status-code').then(function(response){
+        console.log('received statusCode',response.data)
+        self.statusCode = response.data
+      });
+
+      self.humanizeTimestamp = function(timestamp){
         var date = new Date(timestamp)
         timezone = date.getTimezoneOffset() / 60.0
         return date.toString()
+      }
+
+      self.setStatusCode = function(statusCode){
+        cleanStatusCode = Number(statusCode)
+        if(isNaN(cleanStatusCode) && cleanStatusCode !== 0){
+          console.error('statusCode',statusCode,'not a number')
+        } else {
+          $http.post(url+'/status-code', {statusCode: cleanStatusCode}).then(function(){
+            self.statusCode = cleanStatusCode
+          });        
+        }
       }
     });
   </script>
 </head>
 <body ng-controller="arController as ar">
+  <input ng-model="ar.statusCode" type="number" />
+  <button ng-click="ar.setStatusCode(ar.statusCode)">set status code</button>
   <div ng-repeat="request in ar.requests | orderBy:'-'">
     <span ng-click="isHidden = !isHidden">{{ar.humanizeTimestamp(request.timeReceived)}}</span>
     <pre ng-hide="isHidden" pretty-json="request" />

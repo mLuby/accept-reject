@@ -18,10 +18,26 @@ app.use('/', function(req, res, next){
 })
 
 var requests = [];
-
+var statusCode = 200;
 ////////////
 // Routes //
 ////////////
+
+app.get('/status-code', function(req, res){
+  console.log('sending current statusCode', statusCode);
+  res.json(statusCode)
+})
+
+app.post('/status-code', function(req, res){
+  cleanStatusCode = Number(req.body.statusCode)
+  if(isNaN(cleanStatusCode) && cleanStatusCode !== 0){
+    console.error('statusCode',req.body.statusCode,'not a number')
+  } else {
+    console.log('setting', statusCode, 'to', cleanStatusCode);
+    statusCode = cleanStatusCode
+  }
+  res.sendStatus(200)
+})
 
 app.get('/target', function(req, res){
   requests.push({
@@ -36,7 +52,7 @@ app.get('/target', function(req, res){
     'httpVersion': req.httpVersion
   });
   console.log('Received GET as request #'+requests.length+'.');
-  res.sendStatus(200); // TODO customizable
+  res.sendStatus(statusCode); // TODO customizable
 })
 
 // curl -H "Content-Type: application/json" -X POST -d '{"username":"abc","password":"xyz"}' http://localhost:3333/target?x=y
@@ -53,7 +69,7 @@ app.post('/target', function(req, res){   requests.push({
     'httpVersion': req.httpVersion
   });
   console.log('Received POST as request #'+requests.length+'.');
-  res.sendStatus(200); // TODO customizable
+  res.sendStatus(statusCode); // TODO customizable
 })
 
 app.get('/data', function (req, res) {
