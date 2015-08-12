@@ -9,17 +9,23 @@
     app.controller('arController', function($scope, $timeout, $http){
       var self = this;
       self.requests = [];
-      var url = 'http://acceptreject.azurewebsites.net'
-      // var url = 'http://localhost:3333'
+      // var url = 'http://acceptreject.azurewebsites.net'
+      var url = 'http://localhost:3333'
       $http.get(url+'/data').then(function(response){
         self.requests = response.data.length ? response.data : [{no:'data'}]
       });
+
+      this.humanizeTimestamp = function(timestamp){
+        var date = new Date(timestamp)
+        timezone = date.getTimezoneOffset() / 60.0
+        return date.toString()
+      }
     });
   </script>
 </head>
 <body ng-controller="arController as ar">
-  <div ng-repeat="request in ar.requests | orderBy:'-'" ng-click="isHidden = !isHidden">
-    {{isHidden ? 'Show' : 'Hide'}}
+  <div ng-repeat="request in ar.requests | orderBy:'-'">
+    <span ng-click="isHidden = !isHidden">{{ar.humanizeTimestamp(request.timeReceived)}}</span>
     <pre ng-hide="isHidden" pretty-json="request" />
   </div>
 </body>

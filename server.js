@@ -25,7 +25,7 @@ var requests = [];
 
 app.get('/target', function(req, res){
   requests.push({
-    'time-received': new Date(),
+    'timeReceived': new Date(),
     'query': req.query,
     'params': req.params,
     'url': req.url,
@@ -41,7 +41,7 @@ app.get('/target', function(req, res){
 
 // curl -H "Content-Type: application/json" -X POST -d '{"username":"abc","password":"xyz"}' http://localhost:3333/target?x=y
 app.post('/target', function(req, res){   requests.push({
-    'time-received': new Date(),
+    'timeReceived': new Date(),
     'body': req.body,
     'query': req.query,
     'params': req.params,
