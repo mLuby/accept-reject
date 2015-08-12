@@ -89,6 +89,13 @@ app.get('/:story/data', function (req, res) {
   res.send(story.requests);
 });
 
+app.post('/:story/destroy', function(req, res){
+  // respond with logged requests
+  var story = stories[req.params.story];
+  story.requests = []
+  res.sendStatus(200);
+})
+
 app.get('/:story', function(req, res){
   // return index.html with cookie containing story
   res.cookie('story='+req.params.story+';')

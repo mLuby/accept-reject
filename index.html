@@ -43,12 +43,19 @@
           });
         }
       }
+
+      self.destroyRequests = function(){
+        $http.post(url+'/destroy').then(function(){
+          getRequests();
+        });
+      }
     });
   </script>
 </head>
 <body ng-controller="arController as ar">
   <input ng-model="ar.statusCode" type="number" />
   <button ng-click="ar.setStatusCode(ar.statusCode)">set status code</button>
+  <button ng-click="ar.destroyRequests()">delete requests</button>
   <div ng-repeat="request in ar.requests | orderBy:'-'">
     <span ng-click="isHidden = !isHidden">{{ar.humanizeTimestamp(request.timeReceived)}}</span>
     <pre ng-hide="isHidden" pretty-json="request" />
