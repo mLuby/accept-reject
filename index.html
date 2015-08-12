@@ -9,19 +9,17 @@
     app.controller('arController', function($scope, $timeout, $http){
       var self = this;
       self.requests = [];
-      $http.get('http://acceptreject.azurewebsites.net/data').then(function(response){
-        self.requests = response.data
+      var url = 'http://acceptreject.azurewebsites.net'
+      // var url = 'http://localhost:3333'
+      $http.get(url+'/data').then(function(response){
+        self.requests = response.data.length ? response.data : [{no:'data'}]
       });
-
-      self.toggle = function(event){
-        event.nextElementSibling
-      }
     });
   </script>
 </head>
 <body ng-controller="arController as ar">
   <div ng-repeat="request in ar.requests | orderBy:'-'" ng-click="isHidden = !isHidden">
-    {{isHidden = !!isHidden; isHidden ? 'Show' : 'Hide'}}
+    {{isHidden ? 'Show' : 'Hide'}}
     <pre ng-hide="isHidden" pretty-json="request" />
   </div>
 </body>
